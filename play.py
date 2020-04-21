@@ -1,6 +1,7 @@
-from tkinter import Tk, Label, Button, PhotoImage, messagebox, TOP, Frame
+import random
 
-from state import State, ColumnFullException, WrongTurnException
+from tkinter import Tk, Label, Button, PhotoImage, messagebox, TOP, Frame
+from state import State, ColumnFullException, WrongTurnException, FilledTileException
 
 def render_board(game, frame, imgs):
     pick_img = {
@@ -9,29 +10,43 @@ def render_board(game, frame, imgs):
         State.COMPUTER: imgs[0]
     }
 
-    for i in range(4):
-        for j in range(4):
-            Button(frame, command = lambda col=j: human_move(game, frame, imgs, col), image=pick_img[game.board.check(i, j)]).grid(row=i, column=j)    
+    for row in range(5):
+        for col in range(5):
+            if row == 4 or col == 4:
+                Button(frame, command = lambda col=row: dance(row), image=random.choice(imgs[0:3])).grid(row=row, column=col)    
+            else:
+                Button(frame, command = lambda row = row, col = col: human_move(game, frame, imgs, row, col), image=pick_img[game.board.check(row, col)]).grid(row=row, column=col)    
+
+def dance(row):
+    messagebox.showinfo('Just dance', 'Just dance at ' + str(row))
+    return
+
 
 def ai_move(game, frame, imgs):
     try:
+        # changes game board state
         game.ai_choice()
     except WrongTurnException as e:
         messagebox.showwarning('Warning', 'Let the human play')
 
+    # renders changed state
     render_board(game, frame, imgs)
 
     if game.win():
         messagebox.showinfo('GG', 'Computer wins')
 
-def human_move(game, frame, imgs, col):
+def human_move(game, frame, imgs, row, col):
     try:
-        game.human_choice(col)
+        # changes the board values
+        game.human_choice(row, col)
     except ColumnFullException as e:
         messagebox.showwarning('Warning', 'Can\'t choose this column')
     except WrongTurnException as e:
         messagebox.showwarning('Warning', 'Let the computer play')
+    except FilledTileException as e:
+        messagebox.showwarning('Warning', 'This tile is already filled')
 
+    # renders the board again with the changed values
     render_board(game, frame, imgs)
 
     if game.win():

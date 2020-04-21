@@ -12,10 +12,10 @@ class AI:
     @staticmethod
     def recurse(game, depth):
 
-        if game.win():
-            return AI.score(game)
-
-        if depth == 0:
+        # break conditions
+        # you won the game
+        # depth == 0 reached limit
+        if game.win() or depth == 0:
             return AI.score(game)
         else:
             newstates = []

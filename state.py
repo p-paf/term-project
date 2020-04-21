@@ -9,6 +9,9 @@ class ColumnFullException(Exception):
 class WrongTurnException(Exception):
     pass
 
+class FilledTileException(Exception):
+    pass
+
 class State:
 
     HUMAN = 1
@@ -57,9 +60,11 @@ class State:
             self.last_turn = (row, col)
             self.human_turn = not self.human_turn
 
-    def human_choice(self, col):
+    def human_choice(self, row, col):
         if self.human_turn:
             try:
+                if self.board.check(row, col) != 0:
+                    raise FilledTileException
                 self.col_check(col)
                 if self.win():
                     print('Game over human won')
@@ -77,6 +82,11 @@ class State:
             raise WrongTurnException()
 
     def win(self):
+
+        # 5X5 board
+        # 4 mines
+        # 21 turn counts
+        # return turn_count == 21
         line_offsets = [
             # vertical
             [(0, 0), (1, 0), (2, 0)],
